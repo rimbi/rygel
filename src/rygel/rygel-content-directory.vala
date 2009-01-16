@@ -129,6 +129,10 @@ public class Rygel.ContentDirectory: Service {
         this.query_variable["FeatureList"] += this.query_feature_list;
     }
 
+    ~ContentDirectory () {
+        this.http_server.destroy ();
+    }
+
     /* Browse action implementation */
     protected virtual void browse_cb (ContentDirectory content_dir,
                                       ServiceAction    action) {

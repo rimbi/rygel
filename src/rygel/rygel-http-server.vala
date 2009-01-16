@@ -56,6 +56,10 @@ public class Rygel.HTTPServer : GLib.Object {
         context.server.add_handler (this.path_root, server_handler);
     }
 
+    public void destroy () {
+        context.server.remove_handler (this.path_root);
+    }
+
     private string create_uri_for_path (string path) {
         return "http://%s:%u%s%s".printf (this.context.host_ip,
                                           this.context.port,
