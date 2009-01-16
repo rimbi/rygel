@@ -35,14 +35,10 @@ using Gee;
 public class Rygel.TestContentDir : ContentDirectory {
     private ArrayList<MediaItem> items;
 
-    private HTTPServer http_server;
-
     /* Pubic methods */
     public override void constructed () {
         // Chain-up to base first
         base.constructed ();
-
-        this.http_server = new HTTPServer (context, "RygelTest");
 
         this.http_server.item_requested += this.on_item_requested;
         this.http_server.need_stream_source += this.on_need_stream_source;

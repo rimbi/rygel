@@ -38,14 +38,11 @@ public class Rygel.MediaTracker : ContentDirectory {
     private ArrayList<TrackerContainer> containers;
 
     private SearchCriteriaParser search_parser;
-    private HTTPServer http_server;
 
     /* Pubic methods */
     public override void constructed () {
         // Chain-up to base first
         base.constructed ();
-
-        this.http_server = new HTTPServer (this.context, "Tracker");
 
         this.http_server.item_requested += on_item_requested;
 
@@ -56,21 +53,21 @@ public class Rygel.MediaTracker : ContentDirectory {
                                                "All Images",
                                                "Images",
                                                MediaItem.IMAGE_CLASS,
-                                               http_server));
+                                               this.http_server));
         this.containers.add
                         (new TrackerContainer ("14",
                                                this.root_container.id,
                                                "All Music",
                                                "Music",
                                                MediaItem.MUSIC_CLASS,
-                                               http_server));
+                                               this.http_server));
         this.containers.add
                         (new TrackerContainer ("15",
                                                this.root_container.id,
                                                "All Videos",
                                                "Videos",
                                                MediaItem.VIDEO_CLASS,
-                                               http_server));
+                                               this.http_server));
 
         // Now we know how many top-level containers we have
         this.root_container.child_count = this.containers.size;

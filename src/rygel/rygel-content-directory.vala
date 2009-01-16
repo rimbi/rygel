@@ -65,6 +65,8 @@ public class Rygel.ContentDirectory: Service {
     protected string search_caps;
     protected string sort_caps;
 
+    protected HTTPServer http_server;
+
     protected MediaContainer root_container;
 
     DIDLLiteWriter didl_writer;
@@ -90,6 +92,7 @@ public class Rygel.ContentDirectory: Service {
     public override void constructed () {
         this.didl_writer = new DIDLLiteWriter ();
         this.setup_root_container ();
+        this.http_server = new HTTPServer (context, this.get_type ().name ());
 
         this.system_update_id = 0;
         this.feature_list =
