@@ -176,6 +176,13 @@ internal class Rygel.HTTPServer : Rygel.TranscodeManager, Rygel.StateMachine {
 
         var request = new HTTPRequest (this, server, msg, query);
 
+        print ("path=%s\n", server_path);
+        if (query != null) {
+            query.for_each ((k,v) => {
+                print ("%s=%s\n", (string) k, (string) v);
+            });
+        }
+
         request.completed += this.on_request_completed;
         this.requests.add (request);
 
