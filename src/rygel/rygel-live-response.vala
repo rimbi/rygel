@@ -58,6 +58,8 @@ internal class Rygel.LiveResponse : Rygel.HTTPResponse {
     public override void run (Cancellable? cancellable) {
         base.run (cancellable);
 
+        Timeout.add_seconds (2, this.timeout);
+
         // Only bother attempting to seek if the offset is greater than zero.
         if (this.time_range != null && this.time_range.start > 0) {
             this.pipeline.set_state (State.PAUSED);
@@ -299,6 +301,14 @@ internal class Rygel.LiveResponse : Rygel.HTTPResponse {
         }
 
         return true;
+    }
+
+    private bool timeout () {
+        Gst.debug_bin_to_dot_file (this.pipeline,
+                                   DebugGraphDetails.ALL,
+                                   "pipeline.dot");
+
+        return false;
     }
 }
 
