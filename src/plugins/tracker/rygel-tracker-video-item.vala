@@ -42,10 +42,10 @@ public class Rygel.TrackerVideoItem : Rygel.TrackerItem {
     }
 
     public TrackerVideoItem (string          id,
-                             string          path,
+                             string          uri,
                              TrackerCategory parent,
                              string[]        metadata) {
-        base (id, path, parent, metadata);
+        base (id, uri, parent, metadata);
     }
 
     public static string[] get_metadata_keys () {
@@ -87,7 +87,7 @@ public class Rygel.TrackerVideoItem : Rygel.TrackerItem {
 
         this.mime_type = values[Metadata.MIME];
         this.author = values[Metadata.AUTHOR];
-        this.add_uri (path, null);
+        this.add_uri (uri, null);
     }
 }
 

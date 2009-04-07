@@ -42,10 +42,10 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
     }
 
     public TrackerMusicItem (string          id,
-                             string          path,
+                             string          uri,
                              TrackerCategory parent,
                              string[]        metadata) {
-        base (id, path, parent, metadata);
+        base (id, uri, parent, metadata);
     }
 
     public static string[] get_metadata_keys () {
@@ -85,7 +85,7 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
         this.mime_type = values[Metadata.MIME];
         this.author = values[Metadata.ARTIST];
         this.album = values[Metadata.ALBUM];
-        this.add_uri (path, null);
+        this.add_uri (uri, null);
     }
 }
 

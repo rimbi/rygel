@@ -35,9 +35,9 @@ public class Rygel.TrackerMusicCategory : Rygel.TrackerCategory {
         return TrackerMusicItem.get_metadata_keys ();
     }
 
-    protected override MediaItem? create_item (string path, string[] metadata) {
-        return new TrackerMusicItem (this.id + ":" + path,
-                                     path,
+    protected override MediaItem? create_item (string uri, string[] metadata) {
+        return new TrackerMusicItem (this.id + ":" + uri,
+                                     uri,
                                      this,
                                      metadata);
     }

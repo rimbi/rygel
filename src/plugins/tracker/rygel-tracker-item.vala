@@ -28,15 +28,15 @@ using DBus;
  * Represents Tracker item.
  */
 public abstract class Rygel.TrackerItem : Rygel.MediaItem {
-    protected string path;
+    protected string uri;
 
     public TrackerItem (string          id,
-                        string          path,
+                        string          uri,
                         TrackerCategory parent,
                         string[]        metadata) {
         base (id, parent, "", parent.child_class);
 
-        this.path = path;
+        this.uri = uri;
 
         this.init_from_metadata (metadata);
     }

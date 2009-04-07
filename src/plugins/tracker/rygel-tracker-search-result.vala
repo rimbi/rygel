@@ -47,10 +47,10 @@ public class Rygel.TrackerSearchResult :
 
         /* Iterate through all items */
         for (uint i = 0; i < search_result.length; i++) {
-            string child_path = search_result[i][0];
+            string child_uri = search_result[i][0];
             string[] metadata = this.slice_strv_tail (search_result[i], 1);
 
-            var item = category.create_item (child_path, metadata);
+            var item = category.create_item (child_uri, metadata);
             this.data.add (item);
         }
 

@@ -140,13 +140,13 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
 
         this.results.add (res);
         try {
-            string path = this.get_item_path (id);
-            if (path == null) {
+            string uri = this.get_item_uri (id);
+            if (uri == null) {
                 throw new ContentDirectoryError.NO_SUCH_OBJECT (
                                                     "No such object");
             }
 
-            var filter = "FILTER (?item = <" + path + ">)";
+            var filter = "FILTER (?item = <" + uri + ">)";
 
             this.query_items (res, filter, 0, 0);
         } catch (GLib.Error error) {
@@ -211,7 +211,7 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
         }
     }
 
-    public string? get_item_path (string item_id) {
+    public string? get_item_uri (string item_id) {
         var tokens = item_id.split (":", 2);
 
         if (tokens[0] != null && tokens[1] != null) {
@@ -240,6 +240,6 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     }
 
     protected abstract string[] get_metadata_keys ();
-    protected abstract MediaItem? create_item (string path, string[] metadata);
+    protected abstract MediaItem? create_item (string uri, string[] metadata);
 }
 
