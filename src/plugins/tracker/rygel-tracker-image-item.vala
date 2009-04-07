@@ -36,8 +36,6 @@ public class Rygel.TrackerImageItem : Rygel.TrackerItem {
         CREATOR,
         WIDTH,
         HEIGHT,
-        ALBUM,
-        IMAGE_DATE,
         DATE,
         LAST_KEY
     }
@@ -51,16 +49,14 @@ public class Rygel.TrackerImageItem : Rygel.TrackerItem {
 
     public static string[] get_metadata_keys () {
         string[] keys = new string[Metadata.LAST_KEY];
-        keys[Metadata.FILE_NAME] = "File:Name";
-        keys[Metadata.MIME] = "File:Mime";
-        keys[Metadata.SIZE] = "File:Size";
-        keys[Metadata.TITLE] = "Video:Title";
-        keys[Metadata.CREATOR] = "Image:Creator";
-        keys[Metadata.WIDTH] = "Image:Width";
-        keys[Metadata.HEIGHT] = "Image:Height";
-        keys[Metadata.ALBUM] = "Image:Album";
-        keys[Metadata.IMAGE_DATE] = "Image:Date";
-        keys[Metadata.DATE] = "DC:Date";
+        keys[Metadata.FILE_NAME] = "nfo:fileName";
+        keys[Metadata.MIME] = "nie:mimeType";
+        keys[Metadata.SIZE] = "nie:byteSize";
+        keys[Metadata.TITLE] = "nie:title";
+        keys[Metadata.CREATOR] = "nco:creator";
+        keys[Metadata.WIDTH] = "nfo:width";
+        keys[Metadata.HEIGHT] = "nfo:height";
+        keys[Metadata.DATE] = "dc:date";
 
         return keys;
     }
@@ -72,9 +68,6 @@ public class Rygel.TrackerImageItem : Rygel.TrackerItem {
             /* If title wasn't provided, use filename instead */
             this.title = values[Metadata.FILE_NAME];
 
-        if (values[Metadata.SIZE] != "")
-            this.size = values[Metadata.SIZE].to_int ();
-
         if (values[Metadata.WIDTH] != "")
             this.width = values[Metadata.WIDTH].to_int ();
 
@@ -84,16 +77,12 @@ public class Rygel.TrackerImageItem : Rygel.TrackerItem {
         if (values[Metadata.SIZE] != "")
             this.size = values[Metadata.SIZE].to_int ();
 
-        if (values[Metadata.DATE] != "") {
+        if (values[Metadata.DATE] != "")
             this.date = seconds_to_iso8601 (values[Metadata.DATE]);
-        } else {
-            this.date = seconds_to_iso8601 (values[Metadata.IMAGE_DATE]);
-        }
 
         this.mime_type = values[Metadata.MIME];
         this.author = values[Metadata.CREATOR];
-        this.album = values[Metadata.ALBUM];
-        this.add_uri (Filename.to_uri (path, null), null);
+        this.add_uri (path, null);
     }
 }
 

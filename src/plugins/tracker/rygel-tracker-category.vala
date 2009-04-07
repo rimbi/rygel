@@ -31,16 +31,10 @@ using Gee;
 public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     /* class-wide constants */
     private const string TRACKER_SERVICE = "org.freedesktop.Tracker";
-    private const string TRACKER_PATH = "/org/freedesktop/Tracker";
-    private const string TRACKER_IFACE = "org.freedesktop.Tracker";
-    private const string SEARCH_PATH = "/org/freedesktop/Tracker/Search";
-    private const string SEARCH_IFACE = "org.freedesktop.Tracker.Search";
-    private const string METADATA_PATH = "/org/freedesktop/Tracker/Metadata";
-    private const string METADATA_IFACE = "org.freedesktop.Tracker.Metadata";
+    private const string RESOURCES_PATH = "/org/freedesktop/Tracker/Resources";
+    private const string RESOURCES_IFACE = "org.freedesktop.Tracker.Resources";
 
-    public dynamic DBus.Object metadata;
-    public dynamic DBus.Object search;
-    public dynamic DBus.Object tracker;
+    public dynamic DBus.Object resource;
 
     public string category;
 
@@ -75,22 +69,13 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     }
 
     private void get_children_count () {
+        var name = this.category.replace (":", "");
+        var query = "SELECT COUNT(?item) " +
+                    " AS " + name +
+                    " WHERE { ?item a " + this.category + " }";
+        debug ("Executing sqarql query: %s", query);
         try {
-            // We are performing actual search (though an optimized one) to get
-            // the hitcount rather than GetHitCount because GetHitCount only
-            // allows us to get hit count for Text searches.
-            this.search.Query (0,
-                               this.category,
-                               new string[0],
-                               "",
-                               new string[0],
-                               "",
-                               false,
-                               new string[0],
-                               false,
-                               0,
-                               -1,
-                               on_search_query_cb);
+            this.resource.SparqlQuery (query, on_count_query_cb);
         } catch (GLib.Error error) {
             critical ("error getting items under category '%s': %s",
                       this.category,
@@ -100,8 +85,8 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
         }
     }
 
-    private void on_search_query_cb (string[][] search_result,
-                                     GLib.Error error) {
+    private void on_count_query_cb (string[][] search_result,
+                                    GLib.Error error) {
         if (error != null) {
             critical ("error getting items under category '%s': %s",
                       this.category,
@@ -110,7 +95,10 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
             return;
         }
 
-        this.child_count = search_result.length;
+        this.child_count = search_result[0][0].to_int ();
+        debug ("Found %u items under %s category",
+               this.child_count,
+               this.category);
         this.updated ();
     }
 
@@ -122,19 +110,25 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
 
         this.results.add (res);
 
+        var keys = this.get_metadata_keys ();
+        var query = "SELECT ?item ";
+
+        foreach (var key in keys) {
+            var variable = key.replace (":", "");
+            query += "?" +  variable + " ";
+        }
+
+        query += " WHERE { ?item a " + this.category + " ; ";
+        foreach (var key in keys) {
+            var variable = key.replace (":", "");
+            query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
+        }
+
+        query += "} ORDER BY ?item OFFSET " + offset.to_string ();
+        query += " LIMIT " + max_count.to_string ();
+
         try {
-            this.search.Query (0,
-                               this.category,
-                               this.get_metadata_keys (),
-                               "",
-                               new string[0],
-                               "",
-                               false,
-                               new string[0],
-                               false,
-                               (int) offset,
-                               (int) max_count,
-                               res.ready);
+            this.execute_query (query, res);
         } catch (GLib.Error error) {
             res.error = error;
 
@@ -159,10 +153,9 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     public override void find_object (string             id,
                                       Cancellable?       cancellable,
                                       AsyncReadyCallback callback) {
-        var res = new TrackerGetMetadataResult (this, callback, id);
+        var res = new TrackerSearchResult (this, callback);
 
         this.results.add (res);
-
         try {
             string path = this.get_item_path (id);
             if (path == null) {
@@ -170,9 +163,23 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
                                                     "No such object");
             }
 
-            string[] keys = this.get_metadata_keys ();
+            var keys = this.get_metadata_keys ();
+            var query = "SELECT ?item ";
 
-            this.metadata.Get (this.category, path, keys, res.ready);
+            foreach (var key in keys) {
+                var variable = key.replace (":", "");
+                query += "?" +  variable + " ";
+            }
+
+            query += " WHERE { ?item a " + this.category + " ; ";
+            foreach (var key in keys) {
+                var variable = key.replace (":", "");
+                query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
+            }
+
+            query += " FILTER (?item = <" + path + ">) } ORDER BY ?item";
+
+            this.execute_query (query, res);
         } catch (GLib.Error error) {
             res.error = error;
 
@@ -180,14 +187,23 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
         }
     }
 
+    private void execute_query (string              query,
+                                TrackerSearchResult result)
+                                throws GLib.Error {
+        debug ("Executing sqarql query: %s", query);
+        this.resource.SparqlQuery (query, result.ready);
+    }
+
     public override MediaObject? find_object_finish (AsyncResult res)
                                                      throws GLib.Error {
-        var metadata_res = (TrackerGetMetadataResult) res;
+        var search_res = (Rygel.TrackerSearchResult) res;
 
-        if (metadata_res.error != null) {
-            throw metadata_res.error;
+        this.results.remove (search_res);
+
+        if (search_res.error != null) {
+            throw search_res.error;
         } else {
-            return metadata_res.data;
+            return search_res.data[0];
         }
     }
 
@@ -214,15 +230,9 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     private void create_proxies () throws GLib.Error {
         DBus.Connection connection = DBus.Bus.get (DBus.BusType.SESSION);
 
-        this.metadata = connection.get_object (TrackerCategory.TRACKER_SERVICE,
-                                               TrackerCategory.METADATA_PATH,
-                                               TrackerCategory.METADATA_IFACE);
-        this.search = connection.get_object (TrackerCategory.TRACKER_SERVICE,
-                                             TrackerCategory.SEARCH_PATH,
-                                             TrackerCategory.SEARCH_IFACE);
-        this.tracker = connection.get_object (TrackerCategory.TRACKER_SERVICE,
-                                              TrackerCategory.TRACKER_PATH,
-                                              TrackerCategory.TRACKER_IFACE);
+        this.resource = connection.get_object (TrackerCategory.TRACKER_SERVICE,
+                                             TrackerCategory.RESOURCES_PATH,
+                                             TrackerCategory.RESOURCES_IFACE);
     }
 
     private string? get_item_parent_id (string item_id) {

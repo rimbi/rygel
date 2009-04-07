@@ -50,15 +50,15 @@ public class Rygel.TrackerVideoItem : Rygel.TrackerItem {
 
     public static string[] get_metadata_keys () {
         string[] keys = new string[Metadata.LAST_KEY];
-        keys[Metadata.FILE_NAME] = "File:Name";
-        keys[Metadata.MIME] = "File:Mime";
-        keys[Metadata.SIZE] = "File:Size";
-        keys[Metadata.DURATION] = "Video:Duration";
-        keys[Metadata.TITLE] = "Video:Title";
-        keys[Metadata.AUTHOR] = "Video:Author";
-        keys[Metadata.WIDTH] = "Video:Width";
-        keys[Metadata.HEIGHT] = "Video:Height";
-        keys[Metadata.DATE] = "DC:Date";
+        keys[Metadata.FILE_NAME] = "nfo:fileName";
+        keys[Metadata.MIME] = "nie:mimeType";
+        keys[Metadata.SIZE] = "nie:byteSize";
+        keys[Metadata.TITLE] = "nie:title";
+        keys[Metadata.DURATION] = "nmm:length";
+        keys[Metadata.AUTHOR] = "nmm:artistName";
+        keys[Metadata.WIDTH] = "nfo:width";
+        keys[Metadata.HEIGHT] = "nfo:height";
+        keys[Metadata.DATE] = "dc:date";
 
         return keys;
     }
@@ -82,10 +82,12 @@ public class Rygel.TrackerVideoItem : Rygel.TrackerItem {
         if (values[Metadata.HEIGHT] != "")
             this.height = values[Metadata.HEIGHT].to_int ();
 
-        this.date = this.seconds_to_iso8601 (values[Metadata.DATE]);
+        if (values[Metadata.DATE] != "")
+            this.date = this.seconds_to_iso8601 (values[Metadata.DATE]);
+
         this.mime_type = values[Metadata.MIME];
         this.author = values[Metadata.AUTHOR];
-        this.add_uri (Filename.to_uri (path, null), null);
+        this.add_uri (path, null);
     }
 }
 

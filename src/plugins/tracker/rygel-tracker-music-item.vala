@@ -37,8 +37,6 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
         ARTIST,
         TRACK_NUM,
         ALBUM,
-        RELEASE,
-        DATE_ADDED,
         DATE,
         LAST_KEY
     }
@@ -52,17 +50,15 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
 
     public static string[] get_metadata_keys () {
         string[] keys = new string[Metadata.LAST_KEY];
-        keys[Metadata.FILE_NAME] = "File:Name";
-        keys[Metadata.MIME] = "File:Mime";
-        keys[Metadata.SIZE] = "File:Size";
-        keys[Metadata.DURATION] = "Audio:Duration";
-        keys[Metadata.TITLE] = "Audio:Title";
-        keys[Metadata.ARTIST] = "Audio:Artist";
-        keys[Metadata.TRACK_NUM] = "Audio:TrackNo";
-        keys[Metadata.ALBUM] = "Audio:Album";
-        keys[Metadata.RELEASE] = "Audio:ReleaseDate";
-        keys[Metadata.DATE_ADDED] = "Audio:DateAdded";
-        keys[Metadata.DATE] = "DC:Date";
+        keys[Metadata.FILE_NAME] = "nfo:fileName";
+        keys[Metadata.MIME] = "nie:mimeType";
+        keys[Metadata.SIZE] = "nie:byteSize";
+        keys[Metadata.TITLE] = "nie:title";
+        keys[Metadata.DURATION] = "nmm:length";
+        keys[Metadata.ARTIST] = "nmm:artistName";
+        keys[Metadata.TRACK_NUM] = "nmm:trackNumber";
+        keys[Metadata.ALBUM] = "nmm:musicAlbum";
+        keys[Metadata.DATE] = "dc:date";
 
         return keys;
     }
@@ -83,18 +79,13 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
         if (values[Metadata.TRACK_NUM] != "")
             this.track_number = values[Metadata.TRACK_NUM].to_int ();
 
-        if (values[Metadata.DATE] != "") {
+        if (values[Metadata.DATE] != "")
             this.date = seconds_to_iso8601 (values[Metadata.DATE]);
-        } else if (values[Metadata.RELEASE] != "") {
-            this.date = seconds_to_iso8601 (values[Metadata.RELEASE]);
-        } else {
-            this.date = seconds_to_iso8601 (values[Metadata.DATE_ADDED]);
-        }
 
         this.mime_type = values[Metadata.MIME];
         this.author = values[Metadata.ARTIST];
         this.album = values[Metadata.ALBUM];
-        this.add_uri (Filename.to_uri (path, null), null);
+        this.add_uri (path, null);
     }
 }
 
