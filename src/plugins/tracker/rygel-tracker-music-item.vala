@@ -57,7 +57,7 @@ public class Rygel.TrackerMusicItem : Rygel.TrackerItem {
         keys[Metadata.DURATION] = "nmm:length";
         keys[Metadata.ARTIST] = "nmm:artistName";
         keys[Metadata.TRACK_NUM] = "nmm:trackNumber";
-        keys[Metadata.ALBUM] = "nmm:musicAlbum";
+        keys[Metadata.ALBUM] = "nmm:musicAlbum ?album . ?album nie:title";
         keys[Metadata.DATE] = "dc:date";
 
         return keys;
