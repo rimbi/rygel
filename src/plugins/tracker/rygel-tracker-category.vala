@@ -164,15 +164,14 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
         var keys = this.get_metadata_keys ();
         var query = "SELECT ?item ";
 
-        foreach (var key in keys) {
-            var variable = key.replace (":", "");
-            query += "?" +  variable + " ";
+        for (int i = 0; keys[i] != null; i++) {
+            query += "?key" +  i.to_string () + " ";
         }
 
         query += " WHERE { ?item a " + this.category + " ; ";
-        foreach (var key in keys) {
-            var variable = key.replace (":", "");
-            query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
+        for (int i = 0; keys[i] != null; i++) {
+            var variable = "?key" +  i.to_string ();
+            query += "OPTIONAL { ?item " + keys[i] + " " + variable + " } ";
         }
 
         if (filter != null) {
