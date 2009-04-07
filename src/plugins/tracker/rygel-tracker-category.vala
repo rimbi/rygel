@@ -110,25 +110,8 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
 
         this.results.add (res);
 
-        var keys = this.get_metadata_keys ();
-        var query = "SELECT ?item ";
-
-        foreach (var key in keys) {
-            var variable = key.replace (":", "");
-            query += "?" +  variable + " ";
-        }
-
-        query += " WHERE { ?item a " + this.category + " ; ";
-        foreach (var key in keys) {
-            var variable = key.replace (":", "");
-            query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
-        }
-
-        query += "} ORDER BY ?item OFFSET " + offset.to_string ();
-        query += " LIMIT " + max_count.to_string ();
-
         try {
-            this.execute_query (query, res);
+            this.query_items (res, null, offset, max_count);
         } catch (GLib.Error error) {
             res.error = error;
 
@@ -163,23 +146,9 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
                                                     "No such object");
             }
 
-            var keys = this.get_metadata_keys ();
-            var query = "SELECT ?item ";
+            var filter = "FILTER (?item = <" + path + ">)";
 
-            foreach (var key in keys) {
-                var variable = key.replace (":", "");
-                query += "?" +  variable + " ";
-            }
-
-            query += " WHERE { ?item a " + this.category + " ; ";
-            foreach (var key in keys) {
-                var variable = key.replace (":", "");
-                query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
-            }
-
-            query += " FILTER (?item = <" + path + ">) } ORDER BY ?item";
-
-            this.execute_query (query, res);
+            this.query_items (res, filter, 0, 0);
         } catch (GLib.Error error) {
             res.error = error;
 
@@ -187,11 +156,36 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
         }
     }
 
-    private void execute_query (string              query,
-                                TrackerSearchResult result)
-                                throws GLib.Error {
+    private void query_items (TrackerSearchResult res,
+                              string?             filter,
+                              uint                offset,
+                              uint                max_count)
+                              throws GLib.Error {
+        var keys = this.get_metadata_keys ();
+        var query = "SELECT ?item ";
+
+        foreach (var key in keys) {
+            var variable = key.replace (":", "");
+            query += "?" +  variable + " ";
+        }
+
+        query += " WHERE { ?item a " + this.category + " ; ";
+        foreach (var key in keys) {
+            var variable = key.replace (":", "");
+            query += "OPTIONAL { ?item " + key + " ?" + variable + " } ";
+        }
+
+        if (filter != null) {
+            query += filter;
+        }
+
+        query += " } ORDER BY ?item OFFSET " + offset.to_string ();
+        if (max_count > 0) {
+            query += " LIMIT " + max_count.to_string ();
+        }
+
         debug ("Executing sqarql query: %s", query);
-        this.resource.SparqlQuery (query, result.ready);
+        this.resource.SparqlQuery (query, res.ready);
     }
 
     public override MediaObject? find_object_finish (AsyncResult res)
