@@ -168,10 +168,10 @@ public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
             query += "?key" +  i.to_string () + " ";
         }
 
-        query += " WHERE { ?item a " + this.category + " ; ";
+        query += " WHERE { ?item a " + this.category + " . ";
         for (int i = 0; keys[i] != null; i++) {
             var variable = "?key" +  i.to_string ();
-            query += "OPTIONAL { ?item " + keys[i] + " " + variable + " } ";
+            query += "OPTIONAL { ?item " + keys[i] + " " + variable + " } . ";
         }
 
         if (filter != null) {
