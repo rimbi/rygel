@@ -146,8 +146,8 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
         this.end_container ();
     }
 
-    private ArrayList<DIDLLiteResource?> get_original_resources (MediaItem item)
-                                                                 throws Error {
+    public ArrayList<DIDLLiteResource?> get_original_resources (MediaItem item)
+                                                                throws Error {
         var resources = new ArrayList<DIDLLiteResource?> ();
 
         foreach (var uri in item.uris) {
