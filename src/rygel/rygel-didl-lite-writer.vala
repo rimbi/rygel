@@ -111,8 +111,7 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
             this.http_server.add_resources (resources, item);
 
             foreach (DIDLLiteResource res in resources) {
-                filter.adjust_resource (ref res);
-                this.add_res (res);
+                filter.add_resource (this, ref res);
             }
         }
 
@@ -180,7 +179,8 @@ private class Rygel.BrowseFilter : ArrayList<string> {
         }
     }
 
-    public void adjust_resource (ref DIDLLiteResource res) {
+    public void add_resource (DIDLLiteWriter       didl_writer,
+                              ref DIDLLiteResource res) {
         // Unset all optional props that are not requested
         if (!this.have ("res@importUri", null)) {
             res.import_uri = null;
@@ -221,6 +221,8 @@ private class Rygel.BrowseFilter : ArrayList<string> {
         if (!this.have ("res@resolution", null)) {
             res.width = res.height = -1;
         }
+
+        didl_writer.add_res (res);
     }
 
     private static bool filter_equal_func (string a, string b) {
