@@ -41,7 +41,7 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
     public void serialize (MediaObject media_object,
                            string      filter_str)
                            throws Error {
-        var filter = new BrowseFilter (filter_str);
+        var filter = new BrowseFilter (filter_str, this);
 
         if (media_object is MediaItem) {
             this.serialize_item ((MediaItem) media_object, filter);
@@ -111,7 +111,7 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
             this.http_server.add_resources (resources, item);
 
             foreach (DIDLLiteResource res in resources) {
-                filter.add_resource (this, ref res);
+                filter.add_resource (ref res);
             }
         }
 
@@ -161,8 +161,12 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
 }
 
 private class Rygel.BrowseFilter : ArrayList<string> {
-    public BrowseFilter (string filter_str) {
+    private DIDLLiteWriter didl_writer;
+
+    public BrowseFilter (string filter_str, DIDLLiteWriter didl_writer) {
         base ((GLib.EqualFunc) BrowseFilter.filter_equal_func);
+
+        this.didl_writer = didl_writer;
 
         var tokens = filter_str.split (",", -1);
 
@@ -179,8 +183,7 @@ private class Rygel.BrowseFilter : ArrayList<string> {
         }
     }
 
-    public void add_resource (DIDLLiteWriter       didl_writer,
-                              ref DIDLLiteResource res) {
+    public void add_resource (ref DIDLLiteResource res) {
         // Unset all optional props that are not requested
         if (!this.have ("res@importUri", null)) {
             res.import_uri = null;
@@ -222,7 +225,7 @@ private class Rygel.BrowseFilter : ArrayList<string> {
             res.width = res.height = -1;
         }
 
-        didl_writer.add_res (res);
+        this.didl_writer.add_res (res);
     }
 
     private static bool filter_equal_func (string a, string b) {
