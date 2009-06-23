@@ -103,17 +103,7 @@ internal class Rygel.DIDLLiteWriter : GUPnP.DIDLLiteWriter {
             this.add_string ("date", NAMESPACE_DC, null, item.date);
         }
 
-        if (filter.have ("res", null)) {
-            /* Add resource data */
-            var resources = this.get_original_resources (item);
-
-            /* Now get the transcoded/proxy URIs */
-            this.http_server.add_resources (resources, item);
-
-            foreach (DIDLLiteResource res in resources) {
-                filter.add_resource (ref res);
-            }
-        }
+        filter.add_resources (item);
 
         /* End of item */
         this.end_item ();
@@ -183,7 +173,21 @@ private class Rygel.BrowseFilter : ArrayList<string> {
         }
     }
 
-    public void add_resource (ref DIDLLiteResource res) {
+    public void add_resources (MediaItem item) throws GLib.Error {
+        if (this.have ("res", null)) {
+            /* Add resource data */
+            var resources = this.didl_writer.get_original_resources (item);
+
+            /* Now get the transcoded/proxy URIs */
+            this.didl_writer.http_server.add_resources (resources, item);
+
+            foreach (DIDLLiteResource res in resources) {
+                this.add_resource (ref res);
+            }
+        }
+    }
+
+    private void add_resource (ref DIDLLiteResource res) {
         // Unset all optional props that are not requested
         if (!this.have ("res@importUri", null)) {
             res.import_uri = null;
