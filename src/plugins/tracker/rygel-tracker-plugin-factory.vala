@@ -39,9 +39,9 @@ public void module_init (PluginLoader loader) {
 }
 
 public class TrackerPluginFactory {
-    private const string TRACKER_SERVICE = "org.freedesktop.Tracker";
-    private const string TRACKER_OBJECT = "/org/freedesktop/Tracker";
-    private const string TRACKER_IFACE = "org.freedesktop.Tracker";
+    private const string TRACKER_SERVICE = "org.freedesktop.Tracker1";
+    private const string TRACKER_OBJECT = "/org/freedesktop/Tracker1";
+    private const string TRACKER_IFACE = "org.freedesktop.Tracker1";
 
     dynamic DBus.Object tracker;
     PluginLoader        loader;

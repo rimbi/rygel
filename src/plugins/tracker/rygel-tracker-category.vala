@@ -30,9 +30,9 @@ using Gee;
  */
 public abstract class Rygel.TrackerCategory : Rygel.MediaContainer {
     /* class-wide constants */
-    private const string TRACKER_SERVICE = "org.freedesktop.Tracker";
-    private const string RESOURCES_PATH = "/org/freedesktop/Tracker/Resources";
-    private const string RESOURCES_IFACE = "org.freedesktop.Tracker.Resources";
+    private const string TRACKER_SERVICE = "org.freedesktop.Tracker1";
+    private const string RESOURCES_PATH = "/org/freedesktop/Tracker1/Resources";
+    private const string RESOURCES_IFACE = "org.freedesktop.Tracker1.Resources";
 
     public dynamic DBus.Object resource;
 
