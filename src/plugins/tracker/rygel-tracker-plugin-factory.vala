@@ -41,25 +41,25 @@ public void module_init (PluginLoader loader) {
 public class TrackerPluginFactory {
     private const string TRACKER_SERVICE = "org.freedesktop.Tracker1";
     private const string TRACKER_OBJECT = "/org/freedesktop/Tracker1";
-    private const string TRACKER_IFACE = "org.freedesktop.Tracker1";
+    private const string STATS_IFACE = "org.freedesktop.Tracker1.Statistics";
 
-    dynamic DBus.Object tracker;
+    dynamic DBus.Object statistics;
     PluginLoader        loader;
 
     public TrackerPluginFactory (PluginLoader loader) throws DBus.Error {
         var connection = DBus.Bus.get (DBus.BusType.SESSION);
 
-        this.tracker = connection.get_object (TRACKER_SERVICE,
-                                              TRACKER_OBJECT,
-                                              TRACKER_IFACE);
+        this.statistics = connection.get_object (TRACKER_SERVICE,
+                                                 TRACKER_OBJECT,
+                                                 STATS_IFACE);
         this.loader = loader;
 
-        tracker.GetVersion (this.get_version_cb);
+        statistics.Get (this.get_statistics_cb);
     }
 
-    private void get_version_cb (int32 version, GLib.Error err) {
+    private void get_statistics_cb (string[][] stats, GLib.Error err) {
         if (err != null) {
-            warning ("Failed to start Tracker service: %s\n",
+            warning ("Failed to get statistics from Tracker: %s\n",
                      err.message);
             warning ("Tracker plugin disabled.\n");
 
